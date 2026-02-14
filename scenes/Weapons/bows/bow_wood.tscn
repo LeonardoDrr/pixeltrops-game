@@ -1,0 +1,57 @@
+[gd_scene load_steps=9 format=3 uid="uid://w7m2ucsbt5be"]
+
+[ext_resource type="PackedScene" uid="uid://cqabb8867e01p" path="res://scenes/Weapons/Weapon.tscn" id="1_base"]
+[ext_resource type="Texture2D" uid="uid://dji5q270461pp" path="res://assets/weapon/bow/si.png" id="2_texture"]
+[ext_resource type="PackedScene" uid="uid://bk080vcr4gite" path="res://scenes/Weapons/Projectiles/Arrow.tscn" id="3_projectile"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hu7gt"]
+atlas = ExtResource("2_texture")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vam30"]
+atlas = ExtResource("2_texture")
+region = Rect2(0, 32, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_otyan"]
+atlas = ExtResource("2_texture")
+region = Rect2(0, 64, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_k5hwn"]
+atlas = ExtResource("2_texture")
+region = Rect2(0, 96, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_bow"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hu7gt")
+}],
+"loop": true,
+"name": &"Idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vam30")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_otyan")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_k5hwn")
+}],
+"loop": false,
+"name": &"attack",
+"speed": 5.0
+}]
+
+[node name="Bow_Wood" instance=ExtResource("1_base")]
+weapon_id = 21
+projectile_scene = ExtResource("3_projectile")
+projectile_speed = 600.0
+attack_cooldown = 0.6
+
+[node name="AnimatedSprite2D" parent="." index="0"]
+scale = Vector2(0.5, 0.5)
+sprite_frames = SubResource("SpriteFrames_bow")
+animation = &"Idle"

@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://bk080vcr4gite"]
+
+[ext_resource type="PackedScene" path="res://scenes/Weapons/Projectiles/Projectile.tscn" id="1_base"]
+[ext_resource type="Texture2D" uid="uid://bwre20oke1i8s" path="res://assets/boss/Huntress/Huntress 2/Sprites/Arrow/Static.png" id="2_60fxp"]
+
+[node name="Arrow" instance=ExtResource("1_base")]
+speed = 500.0
+damage = 4
+crit_damage = 7
+projectile_gravity = 200.0
+max_distance = 400.0
+
+[node name="Sprite2D" parent="." index="0"]
+scale = Vector2(0.33333337, 1)
+texture = ExtResource("2_60fxp")

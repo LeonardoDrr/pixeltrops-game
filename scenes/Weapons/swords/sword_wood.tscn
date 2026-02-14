@@ -1,0 +1,50 @@
+[gd_scene load_steps=7 format=3 uid="uid://dtd8ral7du38w"]
+
+[ext_resource type="PackedScene" uid="uid://cqabb8867e01p" path="res://scenes/Weapons/Weapon.tscn" id="1_base"]
+[ext_resource type="Texture2D" uid="uid://y46tkmxj2evh" path="res://assets/weapon/sword/espada de madera.png" id="2_texture"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_f4wj4"]
+atlas = ExtResource("2_texture")
+region = Rect2(0, 0, 260, 281)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lc320"]
+atlas = ExtResource("2_texture")
+region = Rect2(0, 0, 260, 281)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hmvc6"]
+atlas = ExtResource("2_texture")
+region = Rect2(0, 281, 260, 281)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_wood"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_f4wj4")
+}],
+"loop": true,
+"name": &"Idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lc320")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hmvc6")
+}],
+"loop": false,
+"name": &"attack",
+"speed": 5.0
+}]
+
+[node name="Sword_Wood" instance=ExtResource("1_base")]
+weapon_id = 1
+rotate_to_mouse = false
+attack_cooldown = 0.4
+
+[node name="AnimatedSprite2D" parent="." index="0"]
+position = Vector2(0.99999994, -2.220446e-16)
+scale = Vector2(0.067307696, 0.07084075)
+sprite_frames = SubResource("SpriteFrames_wood")
+animation = &"attack"
+autoplay = "Idle"

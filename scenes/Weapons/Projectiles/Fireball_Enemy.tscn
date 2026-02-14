@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3 uid="uid://yip2kdmjeokt"]
+
+[ext_resource type="PackedScene" path="res://scenes/Weapons/Projectiles/Projectile.tscn" id="1_base"]
+[ext_resource type="Texture2D" uid="uid://3gfcgolehydm" path="res://assets/weapon/proyectile/fire_ball.png" id="2_x03j5"]
+
+[node name="Fireball_Enemy" instance=ExtResource("1_base")]
+collision_layer = 0
+collision_mask = 3
+damage = 5
+
+[node name="Sprite2D" parent="." index="0"]
+scale = Vector2(0.14351852, 0.14873414)
+texture = ExtResource("2_x03j5")
+
+[node name="CollisionShape2D" parent="." index="1"]
+light_mask = 1023
+visibility_layer = 1023

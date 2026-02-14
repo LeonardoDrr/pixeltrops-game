@@ -1,0 +1,153 @@
+[gd_scene load_steps=22 format=3 uid="uid://pink_monster_ranged"]
+
+[ext_resource type="Script" path="res://scripts/enemy_ranged.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/enemys/Id2/Pink_Monster_Idle_4.png" id="2_idle"]
+[ext_resource type="Texture2D" path="res://assets/enemys/Id2/Pink_Monster_Run_6.png" id="3_run"]
+[ext_resource type="Texture2D" path="res://assets/enemys/Id2/Pink_Monster_Throw_4.png" id="4_throw"]
+[ext_resource type="Texture2D" path="res://assets/enemys/Id2/Pink_Monster_Death_8.png" id="5_death"]
+[ext_resource type="PackedScene" path="res://scenes/Weapons/Projectiles/Rock.tscn" id="6_projectile"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_idle1"]
+atlas = ExtResource("2_idle")
+region = Rect2(0, 0, 32, 32)
+[sub_resource type="AtlasTexture" id="AtlasTexture_idle2"]
+atlas = ExtResource("2_idle")
+region = Rect2(32, 0, 32, 32)
+[sub_resource type="AtlasTexture" id="AtlasTexture_idle3"]
+atlas = ExtResource("2_idle")
+region = Rect2(64, 0, 32, 32)
+[sub_resource type="AtlasTexture" id="AtlasTexture_idle4"]
+atlas = ExtResource("2_idle")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_run1"]
+atlas = ExtResource("3_run")
+region = Rect2(0, 0, 32, 32)
+[sub_resource type="AtlasTexture" id="AtlasTexture_run2"]
+atlas = ExtResource("3_run")
+region = Rect2(32, 0, 32, 32)
+[sub_resource type="AtlasTexture" id="AtlasTexture_run3"]
+atlas = ExtResource("3_run")
+region = Rect2(64, 0, 32, 32)
+[sub_resource type="AtlasTexture" id="AtlasTexture_run4"]
+atlas = ExtResource("3_run")
+region = Rect2(96, 0, 32, 32)
+[sub_resource type="AtlasTexture" id="AtlasTexture_run5"]
+atlas = ExtResource("3_run")
+region = Rect2(128, 0, 32, 32)
+[sub_resource type="AtlasTexture" id="AtlasTexture_run6"]
+atlas = ExtResource("3_run")
+region = Rect2(160, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_throw1"]
+atlas = ExtResource("4_throw")
+region = Rect2(0, 0, 32, 32)
+[sub_resource type="AtlasTexture" id="AtlasTexture_throw2"]
+atlas = ExtResource("4_throw")
+region = Rect2(32, 0, 32, 32)
+[sub_resource type="AtlasTexture" id="AtlasTexture_throw3"]
+atlas = ExtResource("4_throw")
+region = Rect2(64, 0, 32, 32)
+[sub_resource type="AtlasTexture" id="AtlasTexture_throw4"]
+atlas = ExtResource("4_throw")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_pink"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_idle1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_idle2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_idle3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_idle4")
+}],
+"loop": true,
+"name": &"Idle",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_run1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_run2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_run3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_run4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_run5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_run6")
+}],
+"loop": true,
+"name": &"Walk",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_throw1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_throw2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_throw3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_throw4")
+}],
+"loop": false,
+"name": &"Throw",
+"speed": 8.0
+}]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_enemy"]
+radius = 6.0
+height = 18.0
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_hitbox"]
+radius = 7.0
+height = 20.0
+
+[node name="PinkMonster" type="CharacterBody2D" groups=["enemies"]]
+collision_layer = 4
+collision_mask = 1
+script = ExtResource("1_script")
+projectile_scene = ExtResource("6_projectile")
+attack_range = 200.0
+flee_range = 60.0
+enemy_id = 2
+hp = 15
+damage = 4
+speed = 60.0
+anim_walk = "Walk"
+anim_idle = "Idle"
+anim_attack = "Throw"
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_pink")
+animation = &"Idle"
+autoplay = "Idle"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, 7)
+shape = SubResource("CapsuleShape2D_enemy")
+
+[node name="golpear" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="golpear"]
+position = Vector2(0, 7)
+shape = SubResource("CapsuleShape2D_hitbox")

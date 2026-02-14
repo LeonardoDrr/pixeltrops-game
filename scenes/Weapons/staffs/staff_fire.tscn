@@ -1,0 +1,51 @@
+[gd_scene load_steps=8 format=3 uid="uid://bbnus1r0etdvw"]
+
+[ext_resource type="PackedScene" uid="uid://cqabb8867e01p" path="res://scenes/Weapons/Weapon.tscn" id="1_base"]
+[ext_resource type="Texture2D" uid="uid://cviclhr5q0hh5" path="res://assets/weapon/staff/Baston de fuego.png" id="2_texture"]
+[ext_resource type="PackedScene" uid="uid://d1iygjfow52kk" path="res://scenes/Weapons/Projectiles/Fireball.tscn" id="3_projectile"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cu2tw"]
+atlas = ExtResource("2_texture")
+region = Rect2(0, 0, 141, 237)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lmgs8"]
+atlas = ExtResource("2_texture")
+region = Rect2(330, 0, 330, 237)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_c5hyb"]
+atlas = ExtResource("2_texture")
+region = Rect2(0, 237, 330, 237)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_staff"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_cu2tw")
+}],
+"loop": true,
+"name": &"Idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lmgs8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_c5hyb")
+}],
+"loop": false,
+"name": &"attack",
+"speed": 5.0
+}]
+
+[node name="Staff_Fire" instance=ExtResource("1_base")]
+weapon_id = 41
+projectile_scene = ExtResource("3_projectile")
+projectile_speed = 400.0
+attack_cooldown = 1.0
+
+[node name="AnimatedSprite2D" parent="." index="0"]
+position = Vector2(4.7683716e-07, -2.9802322e-08)
+scale = Vector2(0.059848484, 0.080168776)
+sprite_frames = SubResource("SpriteFrames_staff")
+animation = &"Idle"
