@@ -9,6 +9,7 @@ var random_offset: float = 0.0
 
 func _ready() -> void:
     super._ready()
+    add_to_group("flyers")
     random_offset = randf() * 100.0
 
 func _process_enemy_movement(delta: float) -> void:

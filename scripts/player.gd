@@ -1,8 +1,9 @@
 extends CharacterBody2D
 
-const WALK_SPEED = 150.0
-const RUN_SPEED = 280.0
-const JUMP_VELOCITY = -220.0
+const WALK_SPEED = 120.0
+const RUN_SPEED = 220.0
+const JUMP_VELOCITY = -350.0      # Jump higher
+const DOUBLE_JUMP_VELOCITY = -320.0 # Second jump
 const MAX_HP = 100
 const CRIT_CHANCE = 0.15  # 15% chance for critical hit (3 dmg)
 
@@ -26,6 +27,7 @@ var hp: int = MAX_HP
 var is_dead: bool = false
 var has_dealt_damage: bool = false # Still used internally? Maybe not, but keep safe
 var spawn_position: Vector2
+var jump_count: int = 0
 
 # --- Resources ---
 var mana: float = 100.0
@@ -166,8 +168,18 @@ func _physics_process(delta: float) -> void:
 		velocity += get_gravity() * delta
 
 	# --- Jump ---
-	if Input.is_action_just_pressed("ui_accept") and is_on_floor():
-		velocity.y = JUMP_VELOCITY
+	if is_on_floor():
+		jump_count = 0
+		
+	if Input.is_action_just_pressed("ui_accept"):
+		if is_on_floor():
+			velocity.y = JUMP_VELOCITY
+			jump_count = 1
+		elif jump_count < 2: # Double Jump
+			velocity.y = DOUBLE_JUMP_VELOCITY
+			jump_count = 2
+			# Optional: Play jump animation again or effect
+			_play_if_not("Jump")
 
 	# --- Run detection (Shift held) ---
 	is_running = Input.is_action_pressed("run")
@@ -182,61 +194,49 @@ func _physics_process(delta: float) -> void:
 	# Clamp zoom (Limits: 1.0 to 5.0)
 	camera.zoom = camera.zoom.clamp(Vector2(1.0, 1.0), Vector2(5.0, 5.0))
 
-	# --- Mouse Aiming & Face Direction (Terraria Style) ---
-	var mouse_pos = get_global_mouse_position()
-	
-	# Flip sprite based on mouse position
-	anim.flip_h = mouse_pos.x < global_position.x
-
-	# Rotate and Position Weapon Holder
-	if has_node("WeaponHolder") and $WeaponHolder.get_child_count() > 0:
-		var weapon_holder = $WeaponHolder
-		var weapon = weapon_holder.get_child(0)
-		var rotate_enabled = true
-		
-		# --- Flip Position logic (Keep weapon in 'front' hand) ---
-		# If aiming left, move holder to left side. If right, move to right.
-		if mouse_pos.x < global_position.x:
-			weapon_holder.position.x = -abs(weapon_holder.position.x)
-		else:
-			weapon_holder.position.x = abs(weapon_holder.position.x)
-		
-		if "rotate_to_mouse" in weapon:
-			rotate_enabled = weapon.rotate_to_mouse
-			
-		if rotate_enabled:
-			# Free rotation (Bows, Staffs)
-			weapon_holder.look_at(mouse_pos)
-			weapon_holder.scale.x = 1 # Force reset X scale (fix transition from Sword)
-			if mouse_pos.x < global_position.x:
-				weapon_holder.scale.y = -1
-			else:
-				weapon_holder.scale.y = 1
-		else:
-			# Static rotation (Swords) - Flip only
-			weapon_holder.rotation = 0
-			weapon_holder.scale.y = 1
-			
-			if mouse_pos.x < global_position.x:
-				weapon_holder.scale.x = -1
-			else:
-				weapon_holder.scale.x = 1
-
 	# --- Horizontal movement ---
 	var direction := Input.get_axis("ui_left", "ui_right")
 	if direction:
 		var speed = RUN_SPEED if is_running else WALK_SPEED
 		velocity.x = direction * speed
+		# Face the direction of movement
+		anim.flip_h = (direction < 0)
 	else:
 		velocity.x = move_toward(velocity.x, 0, WALK_SPEED)
+		# Removed: Face mouse when idle (kept facing last movement direction)
 
 	move_and_slide()
 
+	# --- Parallax Background ---
 	if parallax_layer:
 		parallax_layer.motion_offset.x = global_position.x * -0.001
 
-	# --- Keep health bar following the character (in global coords) ---
-	# HUD is a CanvasLayer, so no manual positioning needed
+	# --- Position Weapon Holder based on Facing ---
+	if has_node("WeaponHolder") and $WeaponHolder.get_child_count() > 0:
+		var weapon_holder = $WeaponHolder
+		var weapon = weapon_holder.get_child(0)
+		
+		# Move holder to correct side of body
+		if anim.flip_h: # Facing Left
+			weapon_holder.position.x = -abs(weapon_holder.position.x)
+			weapon_holder.scale.x = -1
+		else: # Facing Right
+			weapon_holder.position.x = abs(weapon_holder.position.x)
+			weapon_holder.scale.x = 1
+
+		# Rotate weapon if it supports mouse aiming (like bows/staffs)
+		if "rotate_to_mouse" in weapon and weapon.rotate_to_mouse:
+			var mouse_pos = get_global_mouse_position()
+			weapon_holder.look_at(mouse_pos)
+			# Correct scale when looking back while flipped
+			if mouse_pos.x < global_position.x:
+				weapon_holder.scale.y = -1
+			else:
+				weapon_holder.scale.y = 1
+		else:
+			# For swords/melee, keep it straight or reset scale Y
+			weapon_holder.rotation = 0
+			weapon_holder.scale.y = 1
 
 	# --- Auto-Attack (Hold button) ---
 	if Input.is_action_pressed("attack"):
@@ -244,10 +244,6 @@ func _physics_process(delta: float) -> void:
 			var weapon = $WeaponHolder.get_child(0)
 			if weapon.has_method("attack"):
 				weapon.attack()
-
-	# --- Sprite flip ---
-	if direction != 0:
-		anim.flip_h = direction < 0
 
 	# --- Animation state machine ---
 	if not is_on_floor():

@@ -33,7 +33,7 @@ tile_map_data = PackedByteArray("AAAGAAoAAAABAAUAAAAGAAsAAAAAAAEAAAAGAAwAAAAAAAI
 tile_set = ExtResource("1_o5qli")
 
 [node name="player" parent="." instance=ExtResource("2_0wfyh")]
-position = Vector2(525, 138)
+position = Vector2(-250, 138)
 
 [node name="EnemySpawnercaminantes" type="Node2D" parent="."]
 position = Vector2(127, 41)
@@ -48,5 +48,6 @@ spawner_type = 1
 flyer_scenes = Array[PackedScene]([ExtResource("7_o6xl0")])
 
 [node name="BossSpawner" type="Node2D" parent="."]
-position = Vector2(-371, 102)
+position = Vector2(1200, 102)
 script = ExtResource("9_boss_spawner")
+trigger_x = 1000.0

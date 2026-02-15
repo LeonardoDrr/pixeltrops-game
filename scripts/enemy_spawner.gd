@@ -25,6 +25,12 @@ func _spawn_enemy() -> void:
 	var enemies = get_tree().get_nodes_in_group("enemies")
 	if enemies.size() >= 30:
 		return
+		
+	# --- Flyer Limit Check ---
+	if spawner_type == SpawnerType.FLYER:
+		var flyers = get_tree().get_nodes_in_group("flyers")
+		if flyers.size() >= 2:
+			return
 
 	# --- Select Scene based on Type ---
 	var selected_scene: PackedScene = null

@@ -20,6 +20,7 @@ var is_invulnerable: bool = false  # For Roll, Shield, etc.
 
 func _ready() -> void:
 	super._ready()
+	add_to_group("bosses")
 	hp = boss_hp  # Set HP to boss value
 	
 	# Enhance health bar for boss (larger, different color)
