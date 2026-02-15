@@ -8,6 +8,15 @@ const CRIT_CHANCE = 0.15  # 15% chance for critical hit (3 dmg)
 
 @onready var anim: AnimatedSprite2D = $AnimatedSprite2D
 @onready var camera: Camera2D = $Camera2D
+@onready var parallax_layer: ParallaxLayer = get_parent().get_node_or_null("ParallaxBackground/ParallaxLayer")
+@onready var bg_sprite: Sprite2D = get_parent().get_node_or_null("ParallaxBackground/ParallaxLayer/Sprite2D")
+
+var bg_textures = [
+	preload("res://assets/fondo 1.jpg"),
+	preload("res://assets/fondo 2.jpg")
+]
+var bg_timer = 0.0
+var bg_frame = 0
 
 # @onready var attack_area: Area2D = $"dañar" # Deprecated
 
@@ -143,6 +152,14 @@ func _physics_process(delta: float) -> void:
 	if is_dead:
 		return
 
+	# Animación del fondo
+	if bg_sprite:
+		bg_timer += delta
+		if bg_timer >= 0.5: # Cambia cada 0.5 segundos
+			bg_timer = 0.0
+			bg_frame = (bg_frame + 1) % bg_textures.size()
+			bg_sprite.texture = bg_textures[bg_frame]
+
 	# --- Gravity ---
 
 	if not is_on_floor():
@@ -214,6 +231,9 @@ func _physics_process(delta: float) -> void:
 		velocity.x = move_toward(velocity.x, 0, WALK_SPEED)
 
 	move_and_slide()
+
+	if parallax_layer:
+		parallax_layer.motion_offset.x = global_position.x * -0.001
 
 	# --- Keep health bar following the character (in global coords) ---
 	# HUD is a CanvasLayer, so no manual positioning needed

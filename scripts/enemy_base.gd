@@ -107,7 +107,7 @@ func _physics_process(delta: float) -> void:
 	# --- Virtual: Movement Logic should be implemented by children ---
 	_process_enemy_movement(delta)
 
-func _process_enemy_movement(delta: float) -> void:
+func _process_enemy_movement(_delta: float) -> void:
 	# Default: Do nothing or basic idle
 	pass
 

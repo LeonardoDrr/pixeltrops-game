@@ -473,8 +473,13 @@ position = Vector2(0, -1)
 shape = SubResource("RectangleShape2D_45n2k")
 
 [node name="Camera2D" type="Camera2D" parent="."]
-visible = false
+offset = Vector2(0, -50)
 zoom = Vector2(3, 3)
+position_smoothing_enabled = true
+position_smoothing_speed = 4.0
+drag_vertical_enabled = true
+drag_top_margin = 0.3
+drag_bottom_margin = 0.1
 
 [node name="dañar" type="Area2D" parent="."]
 visible = false
