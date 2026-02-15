@@ -43,6 +43,7 @@ weapon_id = 41
 projectile_scene = ExtResource("3_projectile")
 projectile_speed = 400.0
 attack_cooldown = 1.0
+mana_cost = 2
 
 [node name="AnimatedSprite2D" parent="." index="0"]
 position = Vector2(4.7683716e-07, -2.9802322e-08)

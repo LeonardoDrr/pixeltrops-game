@@ -8,6 +8,8 @@ class_name Weapon
 @export var crit_chance: float = 0.15
 @export var attack_cooldown: float = 0.5
 
+@export var mana_cost: int = 0
+@export var uses_arrows: bool = false
 @export var projectile_scene: PackedScene
 @export var projectile_speed: float = 100.0
 
@@ -34,7 +36,28 @@ func play_animation(anim_name: String) -> void:
 func attack() -> void:
 	if not can_attack:
 		return
+	
+	# Check for resources (Mana / Arrows)
+	var player = owner as CharacterBody2D # Assuming owner is player
+	if not player:
+		# Fallback if owner isn't set properly (e.g. testing)
+		player = get_parent().get_parent() as CharacterBody2D
 		
+	if player and player.has_method("change_mana"):
+		# Mana Check
+		if mana_cost > 0:
+			# Try to consume mana (pass negative amount)
+			if not player.change_mana(-float(mana_cost)):
+				# Not enough mana
+				return
+
+		# Arrow Check
+		if uses_arrows:
+			# Try to consume arrow
+			if not player.change_arrows(-1):
+				# Not enough arrows
+				return
+
 	can_attack = false
 	# Timer to reset attack
 	get_tree().create_timer(attack_cooldown).timeout.connect(func(): can_attack = true)
@@ -107,3 +130,23 @@ func update_orientation(is_facing_left: bool) -> void:
 		scale.x = -1
 	else:
 		scale.x = 1
+
+func get_idle_texture() -> Texture2D:
+	var sprite = anim
+	if not sprite:
+		if has_node("AnimatedSprite2D"):
+			sprite = get_node("AnimatedSprite2D")
+	
+	if sprite and sprite.sprite_frames and sprite.sprite_frames.has_animation("Idle"):
+		return sprite.sprite_frames.get_frame_texture("Idle", 0)
+	return null
+
+func get_weapon_type() -> String:
+	# 1-20 swords, 21-40 bows, 41-60 staffs
+	if weapon_id >= 1 and weapon_id <= 20:
+		return "melee"
+	elif weapon_id >= 21 and weapon_id <= 40:
+		return "range"
+	elif weapon_id >= 41 and weapon_id <= 60:
+		return "mage"
+	return "melee"

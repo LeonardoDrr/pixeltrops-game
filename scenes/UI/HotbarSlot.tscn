@@ -1,0 +1,42 @@
+[gd_scene load_steps=3 format=3 uid="uid://d3y4x608q8ra"]
+
+[ext_resource type="Script" uid="uid://c110c81npn7lf" path="res://scripts/ui/HotbarSlot.gd" id="1_slot"]
+[ext_resource type="Texture2D" uid="uid://wu33gyn382r1" path="res://assets/Items/box mage.png" id="2_abmc8"]
+
+[node name="HotbarSlot" type="TextureRect"]
+custom_minimum_size = Vector2(64, 64)
+offset_right = 64.0
+offset_bottom = 64.0
+expand_mode = 1
+script = ExtResource("1_slot")
+
+[node name="Icon" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.29700002
+anchor_top = 0.44900003
+anchor_right = 0.666
+anchor_bottom = 0.88400006
+offset_left = -8.008001
+offset_top = -6.736002
+offset_right = 9.375999
+offset_bottom = 2.423996
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_abmc8")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Highlight" type="ColorRect" parent="."]
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -2.0
+offset_top = -1.0
+offset_right = 2.0
+offset_bottom = 2.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(1, 1, 0.4, 0.5)

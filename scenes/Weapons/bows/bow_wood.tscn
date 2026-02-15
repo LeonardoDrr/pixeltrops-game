@@ -50,6 +50,7 @@ weapon_id = 21
 projectile_scene = ExtResource("3_projectile")
 projectile_speed = 600.0
 attack_cooldown = 0.6
+uses_arrows = true
 
 [node name="AnimatedSprite2D" parent="." index="0"]
 scale = Vector2(0.5, 0.5)

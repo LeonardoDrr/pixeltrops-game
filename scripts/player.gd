@@ -18,12 +18,15 @@ var is_dead: bool = false
 var has_dealt_damage: bool = false # Still used internally? Maybe not, but keep safe
 var spawn_position: Vector2
 
-# --- Health bar (rendered at screen resolution, not pixel art resolution) ---
+# --- Resources ---
+var mana: float = 100.0
+var max_mana: float = 100.0
+var mana_regen_rate: float = 0.5 # Mana per second (Slow regen)
+var arrows: int = 30
 
-
-var hp_container: Node2D  # top_level so it doesn't inherit Camera zoom distortion
-var hp_bar_bg: ColorRect
-var hp_bar_fill: ColorRect
+# --- UI ---
+const HUD_SCENE = preload("res://scenes/UI/HUD.tscn")
+var hud: CanvasLayer
 
 func _input(event: InputEvent) -> void:
 	# Attack input moved to _physics_process for auto-attack
@@ -52,7 +55,24 @@ var current_weapon_index: int = 0
 func _ready() -> void:
 	spawn_position = global_position
 	anim.animation_finished.connect(_on_animation_finished)
-	_create_health_bar()
+	
+	# Instantiate HUD
+	hud = HUD_SCENE.instantiate()
+	add_child(hud)
+	
+	# Initialize Hotbar
+	var weapons_data = []
+	for scene in weapon_scenes:
+		var w = scene.instantiate()
+		weapons_data.append({
+			"type": w.get_weapon_type(),
+			"icon": w.get_idle_texture()
+		})
+		w.queue_free()
+	
+	hud.initialize_hotbar(weapons_data)
+	
+	_update_ui()
 	
 	# Ensure weapon renders in front of player
 	if has_node("WeaponHolder"):
@@ -69,12 +89,14 @@ func _cycle_weapon(direction: int) -> void:
 	elif current_weapon_index < 0:
 		current_weapon_index = weapon_scenes.size() - 1
 		
-	equip_weapon(weapon_scenes[current_weapon_index])
+	_switch_to_weapon(current_weapon_index) # Use common function
 
 func _switch_to_weapon(index: int) -> void:
 	if index >= 0 and index < weapon_scenes.size():
 		current_weapon_index = index
 		equip_weapon(weapon_scenes[index])
+		if hud:
+			hud.select_slot(index)
 
 func equip_weapon(weapon_packed: PackedScene) -> void:
 	# Eliminar arma actual si existe
@@ -85,36 +107,37 @@ func equip_weapon(weapon_packed: PackedScene) -> void:
 	var new_weapon = weapon_packed.instantiate()
 	$WeaponHolder.call_deferred("add_child", new_weapon)
 
-func _create_health_bar() -> void:
-	# Container with top_level = true so it renders at screen coords (no pixelation)
-	hp_container = Node2D.new()
-	hp_container.top_level = true
-	add_child(hp_container)
 
-	# Background bar (dark)
-	hp_bar_bg = ColorRect.new()
-	hp_bar_bg.color = Color(0.15, 0.15, 0.15, 0.85)
-	hp_bar_bg.size = Vector2(30, 4)
-	hp_bar_bg.position = Vector2(-15, -20)
-	hp_container.add_child(hp_bar_bg)
 
-	# Fill bar (green)
-	hp_bar_fill = ColorRect.new()
-	hp_bar_fill.color = Color(0.1, 0.85, 0.3, 1.0)
-	hp_bar_fill.size = Vector2(30, 4)
-	hp_bar_fill.position = Vector2(-15, -20)
-	hp_container.add_child(hp_bar_fill)
+func _process(delta: float) -> void:
+	if is_dead: return
+	
+	# Passive Mana Regen
+	if mana < max_mana:
+		mana += mana_regen_rate * delta
+		mana = min(mana, max_mana)
+		hud.update_mana(int(mana), int(max_mana))
 
-func _update_health_bar() -> void:
-	var ratio = float(hp) / MAX_HP
-	hp_bar_fill.size.x = 30.0 * ratio
-	# Color gradient: green → yellow → red
-	if ratio > 0.5:
-		hp_bar_fill.color = Color(0.1, 0.85, 0.3, 1.0)
-	elif ratio > 0.25:
-		hp_bar_fill.color = Color(0.9, 0.8, 0.0, 1.0)
-	else:
-		hp_bar_fill.color = Color(0.85, 0.1, 0.1, 1.0)
+func _update_ui() -> void:
+	if hud:
+		hud.update_health(hp, MAX_HP)
+		hud.update_mana(int(mana), int(max_mana))
+		hud.update_arrows(arrows)
+
+func change_mana(amount: float) -> bool:
+	if mana + amount >= 0:
+		mana += amount
+		mana = clamp(mana, 0, max_mana)
+		hud.update_mana(int(mana), int(max_mana))
+		return true
+	return false
+
+func change_arrows(amount: int) -> bool:
+	if arrows + amount >= 0:
+		arrows += amount
+		hud.update_arrows(arrows)
+		return true
+	return false
 
 func _physics_process(delta: float) -> void:
 	if is_dead:
@@ -193,10 +216,7 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 
 	# --- Keep health bar following the character (in global coords) ---
-	hp_container.global_position = global_position
-
-	# --- Keep health bar following the character (in global coords) ---
-	hp_container.global_position = global_position
+	# HUD is a CanvasLayer, so no manual positioning needed
 
 	# --- Auto-Attack (Hold button) ---
 	if Input.is_action_pressed("attack"):
@@ -229,7 +249,8 @@ func take_damage(amount: int, is_crit: bool = false) -> void:
 		return
 	hp -= amount
 	hp = max(hp, 0)
-	_update_health_bar()
+	if hud:
+		hud.update_health(hp, MAX_HP)
 	_flash_damage()
 	_show_damage_number(amount, is_crit)
 	if hp <= 0:
@@ -267,7 +288,7 @@ func _show_damage_number(amount: int, is_crit: bool) -> void:
 func _die() -> void:
 	is_dead = true
 	visible = false
-	hp_container.visible = false
+	if hud: hud.visible = false
 	velocity = Vector2.ZERO
 	set_physics_process(false)
 	# Respawn after 5 seconds
@@ -276,12 +297,14 @@ func _die() -> void:
 
 func _respawn() -> void:
 	hp = MAX_HP
-	_update_health_bar()
+	mana = max_mana
 	global_position = spawn_position
 	is_dead = false
 	is_attacking = false
 	visible = true
-	hp_container.visible = true
+	if hud: 
+		hud.visible = true
+		_update_ui()
 	set_physics_process(true)
 	anim.play("Idle")
 
